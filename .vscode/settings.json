@@ -2,5 +2,8 @@
   "css.customData": [".vscode/css_custom_data.json"],
   "css.validate": false,
   "postcss.validate": false,
-  "stylelint.enable": false
+  "stylelint.enable": false,
+  "cSpell.words": [
+    "watchlist"
+  ]
 }

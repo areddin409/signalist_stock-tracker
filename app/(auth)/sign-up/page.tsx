@@ -67,7 +67,7 @@ const SignUpPage = () => {
           validation={{
             required: 'Email is required',
             pattern: {
-              value: /^\w+@\w+\.\w+$/,
+              value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
               message: 'Invalid email address',
             },
           }}

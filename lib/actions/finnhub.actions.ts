@@ -70,23 +70,37 @@ async function fetchSymbolNews(
   const collectedArticles: MarketNewsArticle[] = [];
   const maxRounds = 6;
 
+  const articlesBySymbol = new Map<string, RawNewsArticle[]>();
+  const offsets = new Map<string, number>();
+
   for (let round = 0; round < maxRounds; round++) {
     const symbolIndex = round % symbols.length;
     const symbol = symbols[symbolIndex];
 
     try {
-      const url = `${FINNHUB_BASE_URL}/company-news?symbol=${encodeURIComponent(symbol)}&from=${from}&to=${to}&token=${NEXT_PUBLIC_FINNHUB_API_KEY}`;
-      const articles = await fetchJSON<RawNewsArticle[]>(url);
-
-      // Find the first valid article for this round
-      const validArticle = articles.find(validateArticle);
-
-      if (validArticle) {
-        const formatted = formatArticle(validArticle, true, symbol, round);
-        collectedArticles.push(formatted);
+      if (!articlesBySymbol.has(symbol)) {
+        const url = `${FINNHUB_BASE_URL}/company-news?symbol=${encodeURIComponent(symbol)}&from=${from}&to=${to}&token=${NEXT_PUBLIC_FINNHUB_API_KEY}`;
+        const articles = await fetchJSON<RawNewsArticle[]>(url);
+        articlesBySymbol.set(
+          symbol,
+          articles.filter(validateArticle)
+        );
       }
 
-      // Stop if we've collected 6 articles
+      const articles = articlesBySymbol.get(symbol)!;
+      const offset = offsets.get(symbol) ?? 0;
+
+      if (offset < articles.length) {
+        const formatted = formatArticle(
+          articles[offset],
+          true,
+          symbol,
+          round
+        );
+        collectedArticles.push(formatted);
+        offsets.set(symbol, offset + 1);
+      }
+
       if (collectedArticles.length >= 6) {
         break;
       }

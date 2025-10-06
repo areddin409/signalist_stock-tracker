@@ -108,7 +108,7 @@ export const sendDailyNewsSummary = inngest.createFunction(
     for (const { user, news } of newsData) {
       try {
         const prompt = NEWS_SUMMARY_EMAIL_PROMPT.replace(
-          '{{newsItems}}',
+          '{{newsData}}',
           JSON.stringify(news, null, 2)
         );
         const response = await step.ai.infer(`summarize-news-${user.email}`, {

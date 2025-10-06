@@ -22,7 +22,7 @@ export const formatTimeAgo = (timestamp: number) => {
 };
 
 export function delay(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 // Formatted string like "$3.10T", "$900.00B", "$25.00M" or "$999,999.99"
@@ -74,21 +74,21 @@ export const calculateNewsDistribution = (symbolsCount: number) => {
 
 // Check for required article fields
 export const validateArticle = (article: RawNewsArticle) =>
-    article.headline && article.summary && article.url && article.datetime;
+  article.headline && article.summary && article.url && article.datetime;
 
 // Get today's date string in YYYY-MM-DD format
 export const getTodayString = () => new Date().toISOString().split('T')[0];
 
 export const formatArticle = (
-    article: RawNewsArticle,
-    isCompanyNews: boolean,
-    symbol?: string,
-    index: number = 0
+  article: RawNewsArticle,
+  isCompanyNews: boolean,
+  symbol?: string,
+  index: number = 0
 ) => ({
   id: isCompanyNews ? Date.now() + Math.random() : article.id + index,
   headline: article.headline!.trim(),
   summary:
-      article.summary!.trim().substring(0, isCompanyNews ? 200 : 150) + '...',
+    article.summary!.trim().substring(0, isCompanyNews ? 200 : 150) + '...',
   source: article.source || (isCompanyNews ? 'Company News' : 'Market News'),
   url: article.url!,
   datetime: article.datetime!,
@@ -116,24 +116,25 @@ export const formatPrice = (price: number) => {
   }).format(price);
 };
 
-export const formatDateToday = new Date().toLocaleDateString('en-US', {
-  weekday: 'long',
-  year: 'numeric',
-  month: 'long',
-  day: 'numeric',
-  timeZone: 'UTC',
-});
-
+export const formatDateToday = () =>
+  new Date().toLocaleDateString('en-US', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    timeZone: 'UTC',
+  });
 
 export const getAlertText = (alert: Alert) => {
   const condition = alert.alertType === 'upper' ? '>' : '<';
   return `Price ${condition} ${formatPrice(alert.threshold)}`;
 };
 
-export const getFormattedTodayDate = () => new Date().toLocaleDateString('en-US', {
-  weekday: 'long',
-  year: 'numeric',
-  month: 'long',
-  day: 'numeric',
-  timeZone: 'UTC',
-});
+export const getFormattedTodayDate = () =>
+  new Date().toLocaleDateString('en-US', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    timeZone: 'UTC',
+  });

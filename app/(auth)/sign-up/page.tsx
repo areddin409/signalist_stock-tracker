@@ -62,6 +62,7 @@ const SignUpPage = () => {
         <InputField
           name='email'
           label='Email'
+          type='email'
           placeholder='John@example.com'
           register={register}
           error={errors.email}

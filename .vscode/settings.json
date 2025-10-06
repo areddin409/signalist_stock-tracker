@@ -3,7 +3,5 @@
   "css.validate": false,
   "postcss.validate": false,
   "stylelint.enable": false,
-  "cSpell.words": [
-    "watchlist"
-  ]
+  "cSpell.words": ["FINNHUB", "watchlist"]
 }

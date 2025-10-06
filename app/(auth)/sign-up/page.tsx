@@ -6,6 +6,7 @@ import InputField from '@/components/forms/InputField';
 import SelectField from '@/components/forms/SelectField';
 import { Button } from '@/components/ui/button';
 import {
+  EMAIL_VALIDATION_PATTERN,
   INVESTMENT_GOALS,
   PREFERRED_INDUSTRIES,
   RISK_TOLERANCE_OPTIONS,
@@ -66,10 +67,7 @@ const SignUpPage = () => {
           error={errors.email}
           validation={{
             required: 'Email is required',
-            pattern: {
-              value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-              message: 'Invalid email address',
-            },
+            pattern: EMAIL_VALIDATION_PATTERN,
           }}
         />
         <InputField

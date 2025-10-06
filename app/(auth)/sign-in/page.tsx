@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import InputField from '@/components/forms/InputField';
 import FooterLink from '@/components/forms/FooterLink';
+import { EMAIL_VALIDATION_PATTERN } from '@/lib/constants';
 // import { signInWithEmail, signUpWithEmail } from '@/lib/actions/auth.actions';
 // import { toast } from 'sonner';
 // import { signInEmail } from 'better-auth/api';
@@ -48,7 +49,7 @@ const SignIn = () => {
           error={errors.email}
           validation={{
             required: 'Email is required',
-            pattern: /^\w+@\w+\.\w+$/,
+            pattern: EMAIL_VALIDATION_PATTERN,
           }}
         />
 

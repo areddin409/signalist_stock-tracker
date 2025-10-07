@@ -10,22 +10,40 @@ interface TradingViewWidgetProps {
   config: Record<string, unknown>;
   height?: number;
   className?: string;
+  size?: 'small' | 'medium' | 'large';
 }
 
 function TradingViewWidget({
   title,
   scriptUrl,
   config,
-  height = 600,
+  height,
   className,
+  size = 'large',
 }: TradingViewWidgetProps) {
   const containerRef = useTradingViewWidget(scriptUrl, config, height);
 
+  // Define size-based styles
+  const sizeStyles = {
+    small: {
+      titleClass: 'font-medium text-sm text-gray-100 mb-2',
+      height: height || 200,
+    },
+    medium: {
+      titleClass: 'font-semibold text-lg text-gray-100 mb-3',
+      height: height || 400,
+    },
+    large: {
+      titleClass: 'font-semibold text-2xl text-gray-100 mb-5',
+      height: height || 600,
+    },
+  };
+
+  const currentSize = sizeStyles[size];
+
   return (
     <div className='w-full'>
-      {title && (
-        <h3 className='font-semibold text-2xl text-gray-100 mb-5'>{title}</h3>
-      )}
+      {title && <h3 className={currentSize.titleClass}>{title}</h3>}
       <div
         className={cn('tradingview-widget-container', className)}
         ref={containerRef}
@@ -33,7 +51,7 @@ function TradingViewWidget({
       >
         <div
           className='tradingview-widget-container__widget'
-          style={{ height, width: '100%' }}
+          style={{ height: currentSize.height, width: '100%' }}
         />
       </div>
     </div>

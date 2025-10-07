@@ -71,6 +71,7 @@ declare global {
     id: string;
     name: string;
     email: string;
+    image: string | null | undefined;
   };
 
   type Stock = {
@@ -215,6 +216,65 @@ declare global {
     alertType: 'upper' | 'lower';
     threshold: number;
     changePercent?: number;
+  };
+
+  // Enhanced stock data types for watchlist
+  type StockMetrics = {
+    metric: {
+      '52WeekHigh': number;
+      '52WeekLow': number;
+      '52WeekPriceReturnDaily': number;
+      '5DayPriceReturnDaily': number;
+      beta: number;
+      currentRatioAnnual: number;
+      currentRatioQuarterly: number;
+      epsTTM: number;
+      evRevenueTTM: number;
+      grossMarginAnnual: number;
+      grossMarginTTM: number;
+      marketCapitalization: number;
+      netMarginGrowth5Y: number;
+      netProfitMarginAnnual: number;
+      netProfitMarginTTM: number;
+      pb: number;
+      peAnnual: number;
+      peTTM: number;
+      psAnnual: number;
+      psTTM: number;
+      revenueGrowthTTMYoy: number;
+      revenueGrowth5Y: number;
+      roe5Y: number;
+      roeTTM: number;
+      yearToDatePriceReturnDaily: number;
+      [key: string]: number;
+    };
+    metricType: string;
+    series: {
+      annual: Record<string, Array<{ period: string; v: number }>>;
+      quarterly: Record<string, Array<{ period: string; v: number }>>;
+    };
+    symbol: string;
+  };
+
+  type WatchlistStockData = {
+    symbol: string;
+    company: string;
+    marketCap: number;
+    pe: number;
+    eps: number;
+    weekHigh52: number;
+    weekLow52: number;
+    beta: number;
+    grossMargin: number;
+    netMargin: number;
+    roe: number;
+    revenueGrowth: number;
+    ytdReturn: number;
+    weekReturn5Day: number;
+    weekReturn52: number;
+    priceToSales: number;
+    priceToBook: number;
+    rawMetrics: StockMetrics['metric'];
   };
 }
 

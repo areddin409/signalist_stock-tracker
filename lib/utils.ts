@@ -138,3 +138,78 @@ export const getFormattedTodayDate = () =>
     day: 'numeric',
     timeZone: 'UTC',
   });
+
+// Enhanced utility functions for stock data formatting
+export const formatStockNumber = (
+  value: number,
+  decimals: number = 2
+): string => {
+  if (value === 0 || isNaN(value) || !Number.isFinite(value)) return 'N/A';
+  return value.toLocaleString('en-US', {
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals,
+  });
+};
+
+export const formatStockCurrency = (value: number): string => {
+  if (value === 0 || isNaN(value) || !Number.isFinite(value)) return 'N/A';
+
+  if (value >= 1e12) {
+    return `$${(value / 1e12).toFixed(2)}T`;
+  } else if (value >= 1e9) {
+    return `$${(value / 1e9).toFixed(2)}B`;
+  } else if (value >= 1e6) {
+    return `$${(value / 1e6).toFixed(2)}M`;
+  } else if (value >= 1e3) {
+    return `$${(value / 1e3).toFixed(2)}K`;
+  }
+  return `$${value.toFixed(2)}`;
+};
+
+export const formatStockPercentage = (
+  value: number,
+  decimals: number = 2
+): string => {
+  if (value === 0 || isNaN(value) || !Number.isFinite(value)) return 'N/A';
+  return `${value.toFixed(decimals)}%`;
+};
+
+export const getPercentageColorClass = (value: number): string => {
+  if (value === 0 || isNaN(value) || !Number.isFinite(value))
+    return 'text-gray-400';
+  return value > 0 ? 'text-green-400' : 'text-red-400';
+};
+
+// Parse stock metrics safely with fallbacks
+export const parseStockMetrics = (
+  metrics: any
+): Omit<WatchlistStockData, 'symbol' | 'company' | 'rawMetrics'> => {
+  const safeNumber = (value: any, fallback: number = 0): number => {
+    const num = Number(value);
+    return isNaN(num) || !Number.isFinite(num) ? fallback : num;
+  };
+
+  return {
+    marketCap: safeNumber(metrics?.marketCapitalization),
+    pe: safeNumber(metrics?.peTTM || metrics?.peAnnual),
+    eps: safeNumber(metrics?.epsTTM),
+    weekHigh52: safeNumber(metrics?.['52WeekHigh']),
+    weekLow52: safeNumber(metrics?.['52WeekLow']),
+    beta: safeNumber(metrics?.beta),
+    grossMargin:
+      safeNumber(metrics?.grossMarginTTM || metrics?.grossMarginAnnual) * 100,
+    netMargin:
+      safeNumber(
+        metrics?.netProfitMarginTTM || metrics?.netProfitMarginAnnual
+      ) * 100,
+    roe: safeNumber(metrics?.roeTTM || metrics?.roe5Y),
+    revenueGrowth: safeNumber(
+      metrics?.revenueGrowthTTMYoy || metrics?.revenueGrowth5Y
+    ),
+    ytdReturn: safeNumber(metrics?.yearToDatePriceReturnDaily),
+    weekReturn5Day: safeNumber(metrics?.['5DayPriceReturnDaily']),
+    weekReturn52: safeNumber(metrics?.['52WeekPriceReturnDaily']),
+    priceToSales: safeNumber(metrics?.psTTM || metrics?.psAnnual),
+    priceToBook: safeNumber(metrics?.pb),
+  };
+};

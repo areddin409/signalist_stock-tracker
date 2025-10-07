@@ -1,6 +1,11 @@
 'use server';
 
-import { getDateRange, validateArticle, formatArticle } from '@/lib/utils';
+import {
+  getDateRange,
+  validateArticle,
+  formatArticle,
+  parseStockMetrics,
+} from '@/lib/utils';
 import { POPULAR_STOCK_SYMBOLS } from '../constants';
 import { cache } from 'react';
 
@@ -246,8 +251,6 @@ export const getWatchlistStocks = cache(
       if (symbols.length === 0) return [];
 
       for (const symbol of symbols) {
-        const data = await searchStocks(symbol);
-        console.log(`🚀 ~ data:`, data);
         // watchListStocks.push(data);
       }
 
@@ -258,3 +261,135 @@ export const getWatchlistStocks = cache(
     }
   }
 );
+/**
+ * Stock metrics data structure from Finnhub API
+ */
+type StockMetrics = {
+  metric: {
+    '52WeekHigh': number;
+    '52WeekLow': number;
+    '52WeekPriceReturnDaily': number;
+    '5DayPriceReturnDaily': number;
+    beta: number;
+    currentRatioAnnual: number;
+    currentRatioQuarterly: number;
+    epsTTM: number;
+    evRevenueTTM: number;
+    grossMarginAnnual: number;
+    grossMarginTTM: number;
+    marketCapitalization: number;
+    netMarginGrowth5Y: number;
+    netProfitMarginAnnual: number;
+    netProfitMarginTTM: number;
+    pb: number;
+    peAnnual: number;
+    peTTM: number;
+    psAnnual: number;
+    psTTM: number;
+    revenueGrowthTTMYoy: number;
+    revenueGrowth5Y: number;
+    roe5Y: number;
+    roeTTM: number;
+    yearToDatePriceReturnDaily: number;
+    [key: string]: number; // For other metrics
+  };
+  metricType: string;
+  series: {
+    annual: Record<string, Array<{ period: string; v: number }>>;
+    quarterly: Record<string, Array<{ period: string; v: number }>>;
+  };
+  symbol: string;
+};
+
+/**
+ * Enhanced watchlist stock data for the data table
+ */
+export type WatchlistStockData = {
+  symbol: string;
+  company: string;
+  marketCap: number;
+  pe: number;
+  eps: number;
+  weekHigh52: number;
+  weekLow52: number;
+  beta: number;
+  grossMargin: number;
+  netMargin: number;
+  roe: number;
+  revenueGrowth: number;
+  ytdReturn: number;
+  weekReturn5Day: number;
+  weekReturn52: number;
+  priceToSales: number;
+  priceToBook: number;
+  // Raw metrics for advanced analysis
+  rawMetrics: StockMetrics['metric'];
+};
+
+/**
+ * Fetches and parses stock metrics data for watchlist display
+ */
+export async function getWatchlistTableData(symbols: string[]) {
+  const data: WatchlistStockData[] = [];
+
+  try {
+    for (const symbol of symbols) {
+      try {
+        const response = await fetch(
+          `${FINNHUB_BASE_URL}/stock/metric?symbol=${symbol}&metric=all&token=${NEXT_PUBLIC_FINNHUB_API_KEY}`,
+          { next: { revalidate: 300 } } // Cache for 5 minutes
+        );
+
+        if (!response.ok) {
+          console.warn(`Failed to fetch data for ${symbol}:`, response.status);
+          continue;
+        }
+
+        const stockMetrics: StockMetrics = await response.json();
+
+        // Skip if no metrics data
+        if (!stockMetrics.metric) {
+          console.warn(`No metrics data for ${symbol}`);
+          continue;
+        }
+
+        const metrics = stockMetrics.metric;
+
+        // Get company name from profile endpoint
+        const profileResponse = await fetch(
+          `${FINNHUB_BASE_URL}/stock/profile2?symbol=${symbol}&token=${NEXT_PUBLIC_FINNHUB_API_KEY}`,
+          { next: { revalidate: 3600 } } // Cache for 1 hour
+        );
+
+        let companyName = symbol; // Fallback to symbol
+        if (profileResponse.ok) {
+          const profile = await profileResponse.json();
+          companyName = profile.name || symbol;
+        }
+
+        // Parse metrics using utility function
+        const parsedMetrics = parseStockMetrics(metrics);
+
+        const parsedData: WatchlistStockData = {
+          symbol,
+          company: companyName,
+          ...parsedMetrics,
+          rawMetrics: metrics,
+        };
+
+        data.push(parsedData);
+      } catch (error) {
+        console.error(`Error processing ${symbol}:`, error);
+        // Continue with other symbols
+      }
+    }
+
+    console.log(
+      `✅ Successfully processed ${data.length} out of ${symbols.length} symbols`
+    );
+    return { data };
+  } catch (error) {
+    console.error('Error in getWatchlistTableData:', error);
+    return { data: [] };
+  }
+}

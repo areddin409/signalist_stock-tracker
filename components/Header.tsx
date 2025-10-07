@@ -4,9 +4,11 @@ import React from 'react';
 import NavItems from './NavItems';
 import UserDropdown from './UserDropdown';
 import { searchStocks } from '@/lib/actions/finnhub.actions';
+import { getCurrentUser } from '@/lib/actions/user.actions';
 
-const Header = async ({ user }: { user: User }) => {
+const Header = async () => {
   const initialStocks = await searchStocks();
+  const user = await getCurrentUser();
   return (
     <header className='sticky top-0 header'>
       <div className='container header-wrapper'>

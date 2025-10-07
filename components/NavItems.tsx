@@ -3,6 +3,7 @@ import { NAV_ITEMS } from '@/lib/constants';
 import { usePathname } from 'next/navigation';
 import { SearchCommand } from './SearchCommand';
 import { symbol } from 'better-auth';
+import Link from 'next/link';
 
 const NavItems = ({
   initialStocks,
@@ -35,9 +36,9 @@ const NavItems = ({
             key={href}
             className={`hover:text-yellow-500 transition-colors ${isActive(href) ? 'text-gray-100' : ''}`}
           >
-            <a href={href} className='nav-link'>
+            <Link href={href} className='nav-link'>
               {label}
-            </a>
+            </Link>
           </li>
         );
       })}

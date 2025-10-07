@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import {
   CommandDialog,
   CommandInput,
@@ -26,6 +26,7 @@ export function SearchCommand({
   const [stocks, setStocks] =
     useState<StockWithWatchlistStatus[]>(initialStocks);
 
+  const abortControllerRef = useRef<AbortController | null>(null);
   const isSearchMode = !!searchTerm.trim();
   const displayStocks = isSearchMode ? stocks : stocks?.slice(0, 10);
 
@@ -41,28 +42,50 @@ export function SearchCommand({
     return () => document.removeEventListener('keydown', down);
   }, []);
 
-  const handleSearch = async () => {
-    if (!isSearchMode) {
-      return setStocks(initialStocks);
+  const handleSearch = useCallback(async () => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
     }
+
+    if (!searchTerm.trim()) {
+      setStocks(initialStocks);
+      setLoading(false);
+      return;
+    }
+
+    abortControllerRef.current = new AbortController();
+    const currentController = abortControllerRef.current;
 
     setLoading(true);
     try {
       const results = await searchStocks(searchTerm.trim());
-      setStocks(results);
+
+      if (!currentController.signal.aborted) {
+        setStocks(results);
+      }
     } catch (error) {
-      console.error('Error searching stocks:', error);
-      setStocks([]);
+      if (!currentController.signal.aborted) {
+        console.error('Error searching stocks:', error);
+        setStocks([]);
+      }
     } finally {
-      setLoading(false);
+      if (!currentController.signal.aborted) {
+        setLoading(false);
+      }
     }
-  };
+  }, [searchTerm, initialStocks]);
 
   const debouncedSearch = useDebounce(handleSearch, 300);
 
   useEffect(() => {
     debouncedSearch();
-  }, [searchTerm]);
+
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
+  }, [debouncedSearch]);
 
   const handleSelectStock = () => {
     setOpen(false);

@@ -1,6 +1,30 @@
 'use server';
 
 import { connectToDatabase } from '@/database/mongoose';
+import { auth } from '@/lib/better-auth/auth';
+import { headers } from 'next/headers';
+import { redirect } from 'next/navigation';
+
+/**
+ * Get the current authenticated user (server-side)
+ * Redirects to sign-in if not authenticated
+ */
+export async function getCurrentUser() {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session?.user) {
+    redirect('/sign-in');
+  }
+
+  return {
+    id: session.user.id,
+    name: session.user.name,
+    email: session.user.email,
+    image: session.user.image,
+  };
+}
 
 /**
  * Retrieves all users from the database who have valid email addresses for newsletter purposes.

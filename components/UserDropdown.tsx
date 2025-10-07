@@ -14,7 +14,13 @@ import { LogOut } from 'lucide-react';
 import NavItems from './NavItems';
 import { signOut } from '@/lib/actions/auth.actions';
 
-const UserDropdown = ({ user }: { user: User }) => {
+const UserDropdown = ({
+  user,
+  initialStocks,
+}: {
+  user: User;
+  initialStocks: StockWithWatchlistStatus[];
+}) => {
   const router = useRouter();
 
   const handleSignOut = async () => {
@@ -22,12 +28,14 @@ const UserDropdown = ({ user }: { user: User }) => {
     router.push('/sign-in');
   };
 
+  console.log('user:', user);
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button
           variant='ghost'
-          className='flex items-center gap-3 text-gray-4 hover:text-yellow-500'
+          className='flex items-center gap-2 text-gray-4 hover:text-yellow-500 p-2'
         >
           <Avatar className='h-8 w-8'>
             <AvatarImage src='https://github.com/shadcn.png' />
@@ -43,7 +51,7 @@ const UserDropdown = ({ user }: { user: User }) => {
           </div>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className='text-gray-400'>
+      <DropdownMenuContent className='text-gray-400' sideOffset={10}>
         <DropdownMenuLabel>
           <div className='flex relative items-center gap-3 py-2'>
             <Avatar className='h-10 w-10'>
@@ -74,7 +82,7 @@ const UserDropdown = ({ user }: { user: User }) => {
 
         <DropdownMenuSeparator className='hidden sm:block bg-gray-600' />
         <nav className='sm:hidden'>
-          <NavItems />
+          <NavItems initialStocks={initialStocks} />
         </nav>
       </DropdownMenuContent>
     </DropdownMenu>

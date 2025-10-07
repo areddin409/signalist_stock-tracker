@@ -2,6 +2,8 @@
 
 import { connectToDatabase } from '@/database/mongoose';
 import { Watchlist } from '@/database/models/watchlist.model';
+import { formatMarketCapValue } from '../utils';
+import { getWatchlistStocks } from './finnhub.actions';
 
 /**
  * Helper function to get database connection
@@ -195,4 +197,22 @@ export async function getUserWithWatchlist(userEmail: string) {
     email: userEmail,
     ...watchlistData,
   };
+}
+
+export async function getWatchlistTableData(symbols: string[]) {
+  // Placeholder function to simulate fetching table data
+  // In a real application, this would fetch data from an API or database
+  const data = symbols.map(symbol => ({
+    symbol,
+    company: `Company ${symbol}`,
+    price: Math.random() * 1000, // Random price for demo purposes
+    change: (Math.random() - 0.5) * 10, // Random change for demo purposes
+    changePercent: (Math.random() - 0.5) * 2, // Random % change
+    marketCap: formatMarketCapValue(Math.random() * 1e12), // Random market cap
+    peRatio: Math.random() * 30, // Random P/E ratio
+  }));
+
+  const stocks = await getWatchlistStocks(symbols);
+  console.log(`🚀 ~ getWatchlistTableData ~ stocks:`, stocks);
+  return { data };
 }

@@ -238,3 +238,23 @@ export const searchStocks = cache(
     }
   }
 );
+
+export const getWatchlistStocks = cache(
+  async (symbols: string[]): Promise<StockWithData[]> => {
+    const watchListStocks: StockWithData[] = [];
+    try {
+      if (symbols.length === 0) return [];
+
+      for (const symbol of symbols) {
+        const data = await searchStocks(symbol);
+        console.log(`🚀 ~ data:`, data);
+        // watchListStocks.push(data);
+      }
+
+      return watchListStocks;
+    } catch (err) {
+      console.error('Error in getWatchlistStocks:', err);
+      return [];
+    }
+  }
+);

@@ -51,7 +51,9 @@ export const connectToDatabase = async () => {
     throw error;
   }
 
-  console.log(`Connected to database: ${process.env.NODE_ENV} - ${uri}`);
+  console.log(
+    `Database connected successfully in ${process.env.NODE_ENV} environment`
+  );
 
   return cached.conn;
 };
